@@ -1,3 +1,5 @@
 # TODO
 
-- tests
+- [ ] Tests
+- [ ] Docs
+- [ ] Rust/`serde` and `axios` fetch examples
