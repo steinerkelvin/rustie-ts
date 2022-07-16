@@ -1,8 +1,8 @@
 # rustie-ts
 
-TypeScript library with helper functions and types to type-safely
-handle Rust's `serde` JSON serialization of Enums. It can also be used standalone
-to implement Enums in TypeScript with plain objects.
+TypeScript library with helper types and functions to type-safely handle Rust's
+`serde` JSON serialization of Enums. It can also be used standalone to implement
+enums/tagged-unions in TypeScript with plain objects.
 
 ## Installation
 

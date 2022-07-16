@@ -6,6 +6,15 @@
   "author": "Kelvin Steiner <me@steinerkelvin.dev>",
   "license": "MIT",
   "private": false,
+  "keywords": [
+    "typings",
+    "rust",
+    "serde",
+    "serde-json",
+    "enum",
+    "tagged-union",
+    "algebraic-data-types"
+  ],
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
