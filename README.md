@@ -38,6 +38,22 @@ const b: Stuff = { BW: { value: true } }
 
 const all: Stuff[] = [a, b]
 
+for (const elem of all) {
+  console.log(`Matching with map_enum...`)
+  match(elem)({
+    Color: (color) => console.log(color.r + color.g + color.b),
+    BW: (bw) => console.log(bw.value),
+  })
+}
+
+for (const elem of all) {
+  console.log(`Matching with if_let...`)
+  if_let(elem)("Color")((color) =>
+    console.log(`This is color: R:${color.r} G:${color.g} B:${color.b}`)
+  )(() => console.log(`This is not color: ${elem}`))
+}
+
+
 for (const _elem of all) {
   console.log(`Matching with flatten_enum...`)
   const variant = flatten_enum(_elem)
@@ -69,20 +85,5 @@ for (const elem of all) {
         break
     }
   })
-}
-
-for (const elem of all) {
-  console.log(`Matching with map_enum...`)
-  match(elem)({
-    Color: (color) => console.log(color.r + color.g + color.b),
-    BW: (bw) => console.log(bw.value),
-  })
-}
-
-for (const elem of all) {
-  console.log(`Matching with if_let...`)
-  if_let(elem)("Color")((color) =>
-    console.log(`This is color: R:${color.r} G:${color.g} B:${color.b}`)
-  )(() => console.log(`This is not color: ${elem}`))
 }
 ```
