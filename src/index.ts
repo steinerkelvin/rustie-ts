@@ -1,22 +1,24 @@
 import type { FlatEnumFrom, VariantsFrom } from "./enum"
-import { flatten_enum } from "./enum"
+import { extract_variant } from "./enum"
 
 export type { Enum } from "./enum"
-export { flatten_enum } from "./enum"
+export { extract_variant, flatten_enum } from "./enum"
+
+export { Tag, Tagged } from './tag'
 
 export type Option<T> = T | null
 
-export const flatten_enum_f =
+export const extract_variant_f =
   <N>(value: N) =>
   <R>(f: (v: FlatEnumFrom<N>) => R) =>
-    f(flatten_enum(value))
+    f(extract_variant(value))
 
 type MatchDict<V, R = void> = { [tag in keyof V]: (v: V[tag]) => R }
 
 export const match =
   <N>(value: N) =>
   <R>(matcher: MatchDict<VariantsFrom<N>, R>): R =>
-    flatten_enum_f(value)(({ $, val }) => {
+    extract_variant_f(value)(({ $, val }) => {
       let arm = matcher[$]
       return arm(val)
     })
@@ -26,4 +28,4 @@ export const if_let =
   <K extends keyof VariantsFrom<N>>(tag: K) =>
   <R>(th: (v: VariantsFrom<N>[K]) => R) =>
   (el: () => R): R =>
-    flatten_enum_f(value)(({ $, val }) => ($ === tag ? th(val) : el()))
+    extract_variant_f(value)(({ $, val }) => ($ === tag ? th(val) : el()))

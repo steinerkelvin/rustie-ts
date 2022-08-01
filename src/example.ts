@@ -1,5 +1,10 @@
 import type { Enum } from "."
-import { flatten_enum, flatten_enum_f, match, if_let } from "."
+import {
+  extract_variant,
+  extract_variant_f,
+  match,
+  if_let,
+} from "."
 
 type Stuff = Enum<{
   Color: Color
@@ -20,11 +25,26 @@ function example() {
   const a: Stuff = { Color: { r: 10, g: 20, b: 35 } }
   const b: Stuff = { BW: { value: true } }
 
-  const all: Stuff[] = [a, b]
+  const items: Stuff[] = [a, b]
 
-  for (const _elem of all) {
-    console.log(`Matching with flatten_enum...`)
-    const variant = flatten_enum(_elem)
+  console.log(`Matching with 'match'...`)
+  for (const elem of items) {
+    match(elem)({
+      Color: (color) => console.log(color.r + color.g + color.b),
+      BW: (bw) => console.log(bw.value),
+    })
+  }
+
+  console.log(`Matching with 'if_let'...`)
+  for (const elem of items) {
+    if_let(elem)("Color")((color) =>
+      console.log(`This is color: R:${color.r} G:${color.g} B:${color.b}`)
+    )(() => console.log(`This is not color: ${elem}`))
+  }
+
+  console.log(`Matching with 'extract_variant'...`)
+  for (const _elem of items) {
+    const variant = extract_variant(_elem)
     switch (variant.$) {
       case "Color":
         const color = variant.val
@@ -39,9 +59,9 @@ function example() {
     }
   }
 
-  for (const elem of all) {
-    console.log(`Matching with flatten_enum_f...`)
-    flatten_enum_f(elem)(({ $, val }) => {
+  console.log(`Matching with 'extract_variant_f'...`)
+  for (const elem of items) {
+    extract_variant_f(elem)(({ $, val }) => {
       switch ($) {
         case "Color":
           console.log(`R: ${val.r}, G: ${val.b} + B: ${val.g}`)
@@ -53,21 +73,6 @@ function example() {
           break
       }
     })
-  }
-
-  for (const elem of all) {
-    console.log(`Matching with map_enum...`)
-    match(elem)({
-      Color: (color) => console.log(color.r + color.g + color.b),
-      BW: (bw) => console.log(bw.value),
-    })
-  }
-
-  for (const elem of all) {
-    console.log(`Matching with if_let...`)
-    if_let(elem)("Color")((color) =>
-      console.log(`This is color: R:${color.r} G:${color.g} B:${color.b}`)
-    )(() => console.log(`This is not color: ${elem}`))
   }
 }
 
