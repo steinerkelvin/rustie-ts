@@ -1,6 +1,6 @@
 {
   "name": "rustie",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "Helper library to type and safely handle Rust's `serde` JSON serializations of Enums. It can also be used standalone to implement Enums in TypeScript with plain objects.",
   "repository": "https://github.com/steinerkelvin/rustie-ts",
   "author": "Kelvin Steiner <me@steinerkelvin.dev>",
