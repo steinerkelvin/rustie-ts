@@ -4,6 +4,8 @@ import { flatten_enum } from "./enum"
 export type { Enum } from "./enum"
 export { flatten_enum } from "./enum"
 
+export type Option<T> = T | null
+
 export const flatten_enum_f =
   <N>(value: N) =>
   <R>(f: (v: FlatEnumFrom<N>) => R) =>
