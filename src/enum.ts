@@ -6,18 +6,23 @@ export type Variant<Tag extends Key, T> = { [x in Tag]: T }
 export type TagVariants<T> = { [K in keyof T]: Variant<K, T[K]> }
 export type Enum<T> = TagVariants<T>[keyof T]
 
-export type ExtractVariant<Tag extends Key, T> = { $: Tag; val: T }
-export type ExtractVariants<T> = {
-  [K in keyof T]: ExtractVariant<K, T[K]>
+export type RuntimeTag<Tag extends Key, T> = { $: Tag; val: T }
+export type ExtractVariantsToRuntimeTagged<T> = {
+  [K in keyof T]: RuntimeTag<K, T[K]>
 }[keyof T]
 
 export type VariantsFrom<T> = AllFields<T>
-export type FlatEnumFrom<T> = ExtractVariants<VariantsFrom<T>>
+export type FlatEnumFrom<T> = ExtractVariantsToRuntimeTagged<VariantsFrom<T>>
 
 export type FlatVariant<Tag extends Key, T> = { $: Tag } & T
 export type FlatEnum<T> = {
   [K in keyof T]: FlatVariant<K, T[K]>
 }[keyof T]
+
+/** Needs testing */
+export type _ExtractVariant<T, Tag extends keyof VariantsFrom<T>> = {
+  [K in Tag]: VariantsFrom<T>[K]
+}
 
 export function flatten_enum<V>(value: Enum<V>): FlatEnum<V> {
   for (let key in value) {
