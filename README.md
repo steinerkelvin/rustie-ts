@@ -1,8 +1,10 @@
 # rustie-ts
 
 TypeScript library with helper types and functions to type-safely handle Rust's
-`serde` JSON serialization of Enums. It can also be used standalone to implement
-enums/tagged-unions in TypeScript with plain objects.
+`serde` JSON serialization of enums.
+
+`rustie` can also be used standalone to implement enums/tagged-unions in
+TypeScript with plain objects.
 
 ## Installation
 
@@ -16,47 +18,45 @@ yarn add rustie
 
 ```ts
 import type { Enum } from "rustie"
-import { flatten_enum, flatten_enum_f, match, if_let } from "rustie"
+import { extract_variant, match, if_let } from "rustie"
 
-type Stuff = Enum<{
-  Color: Color
-  BW: BW
+type Pixel = Enum<{
+  Color: {
+    r: number
+    g: number
+    b: number
+  }
+  BW: {
+    value: boolean
+  }
 }>
 
-interface Color {
-  r: number
-  g: number
-  b: number
-}
+const a = { Color: { r: 10, g: 20, b: 35 } }
+const b = { BW: { value: true } }
 
-interface BW {
-  value: boolean
-}
+const pixels: Pixel[] = [a, b]
 
-const a: Stuff = { Color: { r: 10, g: 20, b: 35 } }
-const b: Stuff = { BW: { value: true } }
+console.log(`Matching with 'match'...`)
 
-const all: Stuff[] = [a, b]
-
-for (const elem of all) {
-  console.log(`Matching with map_enum...`)
+for (const elem of pixels) {
   match(elem)({
     Color: (color) => console.log(color.r + color.g + color.b),
     BW: (bw) => console.log(bw.value),
   })
 }
 
-for (const elem of all) {
-  console.log(`Matching with if_let...`)
+console.log(`Matching with 'if_let'...`)
+
+for (const elem of pixels) {
   if_let(elem)("Color")((color) =>
     console.log(`This is color: R:${color.r} G:${color.g} B:${color.b}`)
   )(() => console.log(`This is not color: ${elem}`))
 }
 
+console.log(`Matching with 'extract_variant'...`)
 
-for (const _elem of all) {
-  console.log(`Matching with flatten_enum...`)
-  const variant = flatten_enum(_elem)
+for (const elem of pixels) {
+  const variant = extract_variant(elem)
   switch (variant.$) {
     case "Color":
       const color = variant.val
@@ -65,25 +65,9 @@ for (const _elem of all) {
       break
     case "BW":
       const bw = variant.val
-      console.log(`VALUE: ${bw.value}`)
+      console.log(`Value: ${bw.value}`)
       // console.log(`${bw.r}`) // Type check FAILS
       break
   }
-}
-
-for (const elem of all) {
-  console.log(`Matching with flatten_enum_f...`)
-  flatten_enum_f(elem)(({ $, val }) => {
-    switch ($) {
-      case "Color":
-        console.log(`R: ${val.r}, G: ${val.b} + B: ${val.g}`)
-        // console.log(`${val.v}`) // Type check FAILS
-        break
-      case "BW":
-        console.log(`VALUE: ${val.value}`)
-        // console.log(`${val.r}`) // Type check FAILS
-        break
-    }
-  })
 }
 ```
