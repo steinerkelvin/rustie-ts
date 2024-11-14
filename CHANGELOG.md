@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 0.4.0
+
+- reintroduce currying partially to fix type inference issues
+
 ## 0.3.0
 
 - removed `Tag` and `Tagged`

@@ -16,7 +16,7 @@ const events: Event[] = [a, b, c]
 // == Matching with 'match' function ==
 
 for (const elem of events) {
-  match(elem, {
+  match(elem)({
     Click: ({ x, y }) => console.log(`Click at ${x}, ${y}`),
     KeyPress: ({ key }) => console.log(`Key pressed: ${key}`),
     Ping: () => console.log(`Ping!`),
@@ -26,9 +26,7 @@ for (const elem of events) {
 // == Matching with 'if_let' function ==
 
 for (const elem of events) {
-  if_let(
-    elem,
-    "Click",
+  if_let(elem, "Click")(
     (color) => console.log(`This is click: X:${color.x} Y:${color.y}`),
     (x) => console.log(`This is not click:`, x)
   )
@@ -66,10 +64,23 @@ type Status = Enum<{
 const statuses: Status[] = [{ Ok: null }, { Err: { message: "Error" } }]
 
 for (const status of statuses) {
-  if_let(
-    status,
-    "Ok",
+  if_let(status, "Ok")(
     () => console.log("This is Ok"), // Runs only on Ok
     ({ message }) => console.log(`This is not Ok: ${message}`) // Runs on Warn and Err
   )
+}
+
+// == Typing Results ==
+
+for (const event of events) {
+  const result = match(event)<number | string>({
+    Click: ({ x, y }) => x + y,
+    KeyPress: ({ key }) => key,
+    Ping: () => "pong",
+  })
+  const result2 = match(event)({
+    Click: ({ x, y }): number | string => x + y,
+    KeyPress: ({ key }) => key,
+    Ping: () => "pong",
+  })
 }

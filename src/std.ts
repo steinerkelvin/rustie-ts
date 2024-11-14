@@ -18,16 +18,16 @@ const result_prototype = {
     this: Result<T, E>,
     matcher: MatchDictFor<Result<T, E>, U>
   ): U {
-    return match(this, matcher)
+    return match(this)(matcher)
   },
   map<T, E, U>(this: Result<T, E>, f: (value: T) => U): Result<U, E> {
-    return match(this, {
+    return match(this)({
       Ok: (value) => result.Ok<U, E>(f(value)),
       Err: (value) => result.Err<U, E>(value),
     })
   },
   map_err<T, E, U>(this: Result<T, E>, f: (value: E) => U): Result<T, U> {
-    return match(this, {
+    return match(this)({
       Ok: (value) => result.Ok<T, U>(value),
       Err: (value) => result.Err<T, U>(f(value)),
     })
