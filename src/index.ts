@@ -1,30 +1,44 @@
-import type { FlatEnumFrom, VariantsFrom } from "./enum"
+import type { AllUnionKeys, MergeUnionFields } from "./fields"
+import type { EnumAny, EnumTags, FlattenEnumSafe } from "./enum"
 import { extract_variant } from "./enum"
 
 export type { Enum } from "./enum"
-export { extract_variant, flatten_enum } from "./enum"
+export { extract_variant } from "./enum"
 
-export { Tag, Tagged } from './tag'
-
-export const extract_variant_f =
-  <N>(value: N) =>
-  <R>(f: (v: FlatEnumFrom<N>) => R) =>
+export const extract_variant_and =
+  <T extends EnumAny>(value: T) =>
+  <R>(f: (v: FlattenEnumSafe<T>) => R) =>
     f(extract_variant(value))
 
-export type MatchDict<V, R = void> = { [tag in keyof V]: (v: V[tag]) => R }
-export type MatchDictFor<En, R = void> = MatchDict<VariantsFrom<En>, R>
+export type MatchDict<T, R = void> = { [k in keyof T]: (v: T[k]) => R }
 
-export const match =
-  <N>(value: N) =>
-  <R>(matcher: MatchDict<VariantsFrom<N>, R>): R =>
-    extract_variant_f(value)(({ $, val }) => {
-      let arm = matcher[$]
-      return arm(val)
-    })
+export type MatchDictFor<T extends EnumAny, R = void> = MatchDict<
+  MergeUnionFields<T>,
+  R
+>
 
-export const if_let =
-  <N>(value: N) =>
-  <K extends keyof VariantsFrom<N>>(tag: K) =>
-  <R>(th: (v: VariantsFrom<N>[K]) => R) =>
-  (el: () => R): R =>
-    extract_variant_f(value)(({ $, val }) => ($ === tag ? th(val) : el()))
+export function match<T extends EnumAny, R>(
+  value: T,
+  matcher: MatchDictFor<T, R>
+): R {
+  return extract_variant_and(value)(({ $, val }) => {
+    let arm = matcher[$]
+    return arm(val)
+  })
+}
+
+type MergeUnionFieldsExcept<
+  T extends EnumAny,
+  K extends EnumTags<T>,
+> = MergeUnionFields<T>[Exclude<EnumTags<T>, K>]
+
+export function if_let<T extends EnumAny, K extends keyof MatchDictFor<T>, R>(
+  value: T,
+  key: K,
+  th: (v: MergeUnionFields<T>[K]) => R,
+  el: (v: MergeUnionFieldsExcept<T, K>) => R
+): R {
+  return extract_variant_and(value)(({ $, val }) =>
+    $ === key ? th(val) : el(val)
+  )
+}

@@ -20,54 +20,76 @@ yarn add rustie
 import type { Enum } from "rustie"
 import { extract_variant, match, if_let } from "rustie"
 
-type Pixel = Enum<{
-  Color: {
-    r: number
-    g: number
-    b: number
-  }
-  BW: {
-    value: boolean
-  }
+type Event = Enum<{
+  Ping: null
+  KeyPress: { key: string }
+  Click: { x: number; y: number }
 }>
 
-const a = { Color: { r: 10, g: 20, b: 35 } }
-const b = { BW: { value: true } }
+const a = { Click: { x: 10, y: 20 } }
+const b = { KeyPress: { key: "a" } }
+const c = { Ping: null }
 
-const pixels: Pixel[] = [a, b]
+const events: Event[] = [a, b, c]
 
-console.log(`Matching with 'match'...`)
+// == Matching with 'match' function ==
 
-for (const elem of pixels) {
-  match(elem)({
-    Color: (color) => console.log(color.r + color.g + color.b),
-    BW: (bw) => console.log(bw.value),
+for (const elem of events) {
+  match(elem, {
+    Click: ({ x, y }) => console.log(`Click at ${x}, ${y}`),
+    KeyPress: ({ key }) => console.log(`Key pressed: ${key}`),
+    Ping: () => console.log(`Ping!`),
   })
 }
 
-console.log(`Matching with 'if_let'...`)
+// == Matching with 'if_let' function ==
 
-for (const elem of pixels) {
-  if_let(elem)("Color")((color) =>
-    console.log(`This is color: R:${color.r} G:${color.g} B:${color.b}`)
-  )(() => console.log(`This is not color: ${elem}`))
+for (const elem of events) {
+  if_let(
+    elem,
+    "Click",
+    (color) => console.log(`This is click: X:${color.x} Y:${color.y}`),
+    (x) => console.log(`This is not click:`, x)
+  )
 }
 
-console.log(`Matching with 'extract_variant'...`)
+// == Matching with `extract_variant` function ==
 
-for (const elem of pixels) {
+for (const elem of events) {
   const variant = extract_variant(elem)
   switch (variant.$) {
-    case "Color":
-      const color = variant.val
-      console.log(`R: ${color.r}, G: ${color.b} + B: ${color.g}`)
-      // console.log(`${color.value}`) // Type check FAILS
+    case "Click":
+      const click = variant.val
+      console.log(`Click at ${click.x}, ${click.y}`)
+      // console.log(`${click.key}`) // Type check FAILS
       break
-    case "BW":
-      const bw = variant.val
-      console.log(`Value: ${bw.value}`)
-      // console.log(`${bw.r}`) // Type check FAILS
+    case "KeyPress":
+      const key_press = variant.val
+      console.log(`Key pressed: ${key_press.key}`)
+      // console.log(`${key_press.x}`) // Type check FAILS
+      break
+    case "Ping":
+      console.log(`Ping!`)
       break
   }
+}
+
+// == Overlapping else ==
+
+type Status = Enum<{
+  Ok: null
+  Warn: { message: string }
+  Err: { message: string }
+}>
+
+const statuses: Status[] = [{ Ok: null }, { Err: { message: "Error" } }]
+
+for (const status of statuses) {
+  if_let(
+    status,
+    "Ok",
+    () => console.log("This is Ok"), // Runs only on Ok
+    ({ message }) => console.log(`This is not Ok: ${message}`) // Runs on Warn and Err
+  )
 }
 ```

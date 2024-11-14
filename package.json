@@ -1,6 +1,6 @@
 {
   "name": "rustie",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Helper library to type and safely handle Rust's `serde` JSON serializations of Enums. It can also be used standalone to implement Enums in TypeScript with plain objects.",
   "repository": "https://github.com/steinerkelvin/rustie-ts",
   "author": "Kelvin Steiner <me@steinerkelvin.dev>",
@@ -18,15 +18,18 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
+    "clean": "rm -rf node_modules dist",
     "prepublish": "tsc",
     "build": "tsc",
+    "typecheck": "tsc --noEmit",
     "format": "prettier --write ./src",
     "format-check": "prettier --check ./src",
     "test": "echo \"Error: no test specified\" && true"
   },
   "devDependencies": {
-    "prettier": "^2.7.1",
-    "ts-node": "^10.9.2",
-    "typescript": "^4.7.4"
+    "prettier": "^3.3.3",
+    "tsafe": "^1.8.4",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3"
   }
 }
